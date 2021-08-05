@@ -1,4 +1,5 @@
 ﻿using FilmesApi.Dado;
+using FilmesApi.Data.DTOs;
 using FilmesApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -22,8 +23,15 @@ namespace FilmesApi.Controllers
 
 
         [HttpPost]// cadastra um novo filme "publicar"
-        public IActionResult AdicionaFilme([FromBody] Filme filme)//[FromBody] este filme que estou recebendo vem do corpo da requisição
+        public IActionResult AdicionaFilme([FromBody] CreateFilmeDto filmeDto)//[FromBody] este filme que estou recebendo vem do corpo da requisição
         {
+            Filme filme = new Filme
+            {
+                Titulo = filmeDto.Titulo,
+                Genero = filmeDto.Genero,
+                Duracao = filmeDto.Duracao,
+                Diretor = filmeDto.Diretor
+            };
 
             _context.Filmes.Add(filme);// no contexto de filmes vamos adiocionar um novo filme
             _context.SaveChanges(); // salva as alterações efetivamente no banco de dados 
@@ -45,6 +53,15 @@ namespace FilmesApi.Controllers
 
             if (filme != null)
             {
+
+                ReadFilmeDto filmeDto = new ReadFilmeDto
+                {
+                    Titulo = filme.Titulo,
+                    Diretor = filme.Diretor,
+                    Id = filme.Id,
+                    Genero = filme.Genero,
+                    HoraDaConsulta = DateTime.Now
+                };
                 return Ok(filme);// retorna o status 200 com a lista de filmes
             }
             return NotFound(); // retorna error 404 dizendo que nao foi encontrado o filme
@@ -53,7 +70,7 @@ namespace FilmesApi.Controllers
 
 
         [HttpPut("{id}")]// HttpPut é usado para atualização/ alteração
-        public IActionResult AtualizaFilme(int id, [FromBody] Filme filmeNovo)// atualizar filme recebe id com parametro
+        public IActionResult AtualizaFilme(int id, [FromBody] UptateFilmeDto filmeDto)// atualizar filme recebe id com parametro
         {
 
             Filme filme = _context.Filmes.FirstOrDefault(filme => filme.Id == id);
@@ -65,10 +82,10 @@ namespace FilmesApi.Controllers
 
             }
             // caso encontre o filme atualiza campo a campo 
-            filme.Titulo = filmeNovo.Titulo;
-            filme.Genero = filmeNovo.Genero;
-            filme.Duracao = filmeNovo.Duracao;
-            filme.Diretor = filmeNovo.Diretor;
+            filme.Titulo = filmeDto.Titulo;
+            filme.Genero = filmeDto.Genero;
+            filme.Duracao = filmeDto.Duracao;
+            filme.Diretor = filmeDto.Diretor;
 
             _context.SaveChanges();// salva as mudanças 
             return NoContent(); // traz uma resposta vazia status 204    
