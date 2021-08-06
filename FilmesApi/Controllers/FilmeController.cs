@@ -62,7 +62,7 @@ namespace FilmesApi.Controllers
                     Genero = filme.Genero,
                     HoraDaConsulta = DateTime.Now
                 };
-                return Ok(filme);// retorna o status 200 com a lista de filmes
+                return Ok(filmeDto);// retorna o status 200 com a lista de filmes
             }
             return NotFound(); // retorna error 404 dizendo que nao foi encontrado o filme
 
