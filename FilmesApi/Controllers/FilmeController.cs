@@ -27,7 +27,7 @@ namespace FilmesApi.Controllers
         [HttpPost]// cadastra um novo filme "publicar"
         public IActionResult AdicionaFilme([FromBody] CreateFilmeDto filmeDto)//[FromBody] este filme que estou recebendo vem do corpo da requisição
         {
-            Filme filme = _mapper.Map<Filme>(filmeDto);
+            Filme filme = _mapper.Map<Filme>(filmeDto);// converte filmeDto em filme 
 
             _context.Filmes.Add(filme);// no contexto de filmes vamos adiocionar um novo filme
             _context.SaveChanges(); // salva as alterações efetivamente no banco de dados 
@@ -51,7 +51,7 @@ namespace FilmesApi.Controllers
             if (filme != null)
             {
 
-                ReadFilmeDto filmeDto = _mapper.Map<ReadFilmeDto>(filme);
+                ReadFilmeDto filmeDto = _mapper.Map<ReadFilmeDto>(filme);//  converte readfilmedto para filme 
                 return Ok(filmeDto);// retorna o status 200 com a lista de filmes
             }
             return NotFound(); // retorna error 404 dizendo que nao foi encontrado o filme
@@ -69,7 +69,7 @@ namespace FilmesApi.Controllers
                 return NotFound();
             }
 
-            _mapper.Map(filmeDto, filme);
+            _mapper.Map(filmeDto, filme);//converte as informações de filmeDto para fime 
             _context.SaveChanges();// salva as mudanças 
             return NoContent(); // traz uma resposta vazia status 204    
         }
