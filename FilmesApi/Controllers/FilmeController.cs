@@ -1,4 +1,5 @@
-﻿using FilmesApi.Dado;
+﻿using AutoMapper;
+using FilmesApi.Dado;
 using FilmesApi.Data.DTOs;
 using FilmesApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -14,36 +15,32 @@ namespace FilmesApi.Controllers
     public class FilmeController : ControllerBase
     {
         private FilmeContext _context;
+        private IMapper _mapper;
 
-
-        public FilmeController(FilmeContext context)// cria o contexto entre o banco e filmeconttoller
+        public FilmeController(FilmeContext context,IMapper mapper)// cria o contexto entre o banco e filmeconttoller
         {
             _context = context;
+            _mapper = mapper;
         }
 
 
         [HttpPost]// cadastra um novo filme "publicar"
         public IActionResult AdicionaFilme([FromBody] CreateFilmeDto filmeDto)//[FromBody] este filme que estou recebendo vem do corpo da requisição
         {
-            Filme filme = new Filme
-            {
-                Titulo = filmeDto.Titulo,
-                Genero = filmeDto.Genero,
-                Duracao = filmeDto.Duracao,
-                Diretor = filmeDto.Diretor
-            };
+            Filme filme = _mapper.Map<Filme>(filmeDto);
 
             _context.Filmes.Add(filme);// no contexto de filmes vamos adiocionar um novo filme
             _context.SaveChanges(); // salva as alterações efetivamente no banco de dados 
             return CreatedAtAction(nameof(RecuperaFilmesPorId), new { Id = filme.Id }, filme);
         }
 
+
         [HttpGet]// obtem a lista de filmes 
         public IEnumerable<Filme> RecuperaFilmes()
         {
-
             return _context.Filmes;//o contexto ira acessar toda a nossa lista de filmes listados
         }
+
 
         [HttpGet("{id}")]// retornamos o parametro ("{id}") para especificar o tipo de retorno GET
         public IActionResult RecuperaFilmesPorId(int id)// IActionResult Define um contrato que representa o resultado de um método de ação.
@@ -54,18 +51,10 @@ namespace FilmesApi.Controllers
             if (filme != null)
             {
 
-                ReadFilmeDto filmeDto = new ReadFilmeDto
-                {
-                    Titulo = filme.Titulo,
-                    Diretor = filme.Diretor,
-                    Id = filme.Id,
-                    Genero = filme.Genero,
-                    HoraDaConsulta = DateTime.Now
-                };
+                ReadFilmeDto filmeDto = _mapper.Map<ReadFilmeDto>(filme);
                 return Ok(filmeDto);// retorna o status 200 com a lista de filmes
             }
             return NotFound(); // retorna error 404 dizendo que nao foi encontrado o filme
-
         }
 
 
@@ -78,20 +67,14 @@ namespace FilmesApi.Controllers
             if (filme == null) // se o filme não existe restorna notfound
             {
                 return NotFound();
-
-
             }
-            // caso encontre o filme atualiza campo a campo 
-            filme.Titulo = filmeDto.Titulo;
-            filme.Genero = filmeDto.Genero;
-            filme.Duracao = filmeDto.Duracao;
-            filme.Diretor = filmeDto.Diretor;
 
+            _mapper.Map(filmeDto, filme);
             _context.SaveChanges();// salva as mudanças 
             return NoContent(); // traz uma resposta vazia status 204    
-
-
         }
+
+
         [HttpDelete("{id}")]
         public IActionResult DeletaFilme(int id)
         {
